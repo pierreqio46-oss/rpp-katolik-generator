@@ -1,11 +1,14 @@
 import streamlit as st
 from google import genai
+from docx import Document
+from docx.shared import Mm, Pt
+import io
 
 # Mengatur konfigurasi halaman web
 st.set_page_config(page_title="Generator RPP Deep Learning", layout="wide")
 
 st.title("⛪ Generator RPP / Modul Ajar Katolik")
-st.subheader("Berbasis Pembelajaran Mendalam (Deep Learning) - Cetak A4 Resmi")
+st.subheader("Berbasis Pembelajaran Mendalam (Deep Learning) - Multi-Pertemuan")
 st.write("Isi formulir di bawah ini untuk merancang RPP secara otomatis menggunakan AI.")
 
 # --- SIDEBAR INPUT ---
@@ -45,6 +48,30 @@ with col4:
     kemitraan_pembelajaran = st.text_input("Kemitraan Pembelajaran:", "Orang Tua, Lingkungan / Kring")
     pemanfaatan_digital = st.text_input("Pemanfaatan Digital:", "Canva for Education, Video, LCD Projector")
     persiapan_pembelajaran = st.text_area("Persiapan Guru:", "Guru menyiapkan presentasi materi pembelajaran, LKPD")
+
+# --- FUNGSI MERUBAH TEKS MENJADI DOCX DI MEMORI ---
+def buat_file_docx(teks_rpp):
+    doc = Document()
+    # Atur ukuran halaman A4
+    section = doc.sections[0]
+    section.page_width = Mm(210)
+    section.page_height = Mm(297)
+    
+    style = doc.styles['Normal']
+    font = style.font
+    font.name = 'Arial'
+    font.size = Pt(11)
+    
+    # Hapus tag HTML dasar agar tidak mengotori Word dokumen
+    bersih_teks = teks_rpp.replace("<p>", "").replace("</p>", "\n").replace("<h1>", "\n\n").replace("</h1>", "\n").replace("<h2>", "\n\n").replace("</h2>", "\n").replace("<h3>", "\n\n").replace("</h3>", "\n")
+    
+    for baris in bersih_teks.split('\n'):
+        doc.add_paragraph(baris)
+        
+    buffer = io.BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+    return buffer
 
 # --- PROSES GENERATE ---
 if st.button("🚀 Generate RPP / Modul Ajar", type="primary"):
@@ -90,41 +117,46 @@ if st.button("🚀 Generate RPP / Modul Ajar", type="primary"):
                     contents=prompt_text,
                 )
                 
-                # Simpan hasil ke dalam session state agar tidak hilang saat halaman memuat ulang
                 st.session_state['rpp_html'] = response.text
                 st.success("🎉 RPP Berhasil Dibuat!")
                 
             except Exception as e:
                 st.error(f"Terjadi kesalahan saat menghubungi Gemini API: {e}")
 
-# --- TAMPILAN HASIL & TOMBOL CETAK ---
+# --- TAMPILAN HASIL & TOMBOL AKSI ---
 if 'rpp_html' in st.session_state:
     st.markdown("---")
-    st.header("📄 Hasil Pratinjau Dokumen RPP")
+    st.header("📄 Menu Aksi & Pratinjau Dokumen")
     
-    # Skrip JavaScript untuk memicu cetak jendela browser pada area tertentu saja
-    print_js = """
-    <script>
-    function printDiv() {
-        var printContents = document.getElementById('printableArea').innerHTML;
-        var originalContents = document.body.innerHTML;
-        document.body.innerHTML = "<html><head><title>Cetak RPP</title><style>@page { size: A4; margin: 25mm; } body { font-family: Arial, sans-serif; line-height: 1.6; }</style></head><body>" + printContents + "</body></html>";
-        window.print();
-        document.body.innerHTML = originalContents;
-        window.location.reload();
-    }
-    </script>
-    <button onclick="printDiv()" style="background-color: #4CAF50; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; margin-bottom: 20px;">
-        🖨️ Cetak Langsung ke Kertas A4 / Simpan ke PDF
-    </button>
-    """
+    # Membuat tombol-tombol aksi berdampingan yang berfungsi 100%
+    btn_col1, btn_col2, btn_col3 = st.columns(3)
     
-    # Render tombol cetak HTML/JS
-    st.components.v1.html(print_js, height=60)
+    with btn_col1:
+        # Pemicu cetak langsung melalui tombol bawaan Streamlit + instruksi pengguna
+        st.info("💡 **Untuk Cetak ke A4 / Simpan ke PDF:** Tekan kombinasi tombol **Ctrl + P** (Windows) atau **Cmd + P** (Mac) di keyboard Anda saat berada di halaman ini.")
+        
+    with btn_col2:
+        # Tombol download file Microsoft Word (.docx) asli
+        file_docx = buat_file_docx(st.session_state['rpp_html'])
+        st.download_button(
+            label="📥 Unduh File Word (.DOCX)",
+            data=file_docx,
+            file_name=f"RPP_{mapel.replace(' ', '_')}.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
+        
+    with btn_col3:
+        # Menyediakan alternatif salin teks HTML murni untuk aplikasi eksternal
+        st.download_button(
+            label="🌐 Unduh File Kode HTML Resmi",
+            data=st.session_state['rpp_html'],
+            file_name=f"RPP_{mapel.replace(' ', '_')}.html",
+            mime="text/html"
+        )
     
-    # Tampilkan pratinjau dokumen di dalam container khusus yang bisa dicetak
+    # Tampilkan halaman cetak yang bersih
     html_content = f"""
-    <div id="printableArea" style="padding: 30px; border: 1px solid #ccc; background-color: white; color: black; font-family: Arial, sans-serif; line-height: 1.6;">
+    <div style="padding: 30px; border: 1px solid #ccc; background-color: white; color: black; font-family: Arial, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto;">
         {st.session_state['rpp_html']}
     </div>
     """
