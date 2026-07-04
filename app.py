@@ -105,7 +105,7 @@ if st.button("🚀 Generate RPP / Modul Ajar", type="primary"):
                 - 2. Desain Pembelajaran memuat: Tujuan pembelajaran, Kriteria ketercapaian pembelajaran, Praktik pedagogis, Lingkungan Pembelajaran, Kemitraan Pembelajaran, Pemanfaatan Digital, Persiapan Pembelajaran dan  Tahapan Pembelajaran: Tentukan dibagian pembelajaran mana yang merupakan tahapan pembaelajaran mendalam tentang Memahami (Understanding) Mengaplikasi (Applying)dan Merefleksi (Reflecting)  (Buat rapi di dalam tabel HTML).
                 - 3. Langkah Pembelajaran: Wajib dijabarkan detail satu per satu dari Pertemuan 1 sampai Pertemuan ke-{waktu}. Setiap pertemuan memuat Kegiatan Awal (15 menit: memuat Apersepsi, Motivasi, Asesmen Diagnostik, Tujuan Pembelajaran, Manfaat Pembelajaran), Kegiatan Inti (90 menit: gunakan tahapan atau sintak pembelajaran pada praktik pedagogis yang dipilih, perhatikan aspek Meaningful, Eksplorasi Mendalam, dan Diskusi/Kolaborasi), Kegiatan Akhir (15 menit: berisi rangkuman atau kesimpulan pembelajaran dan refleksi, Fokus pada aspek Joyful, Refleksi, dan Apresiasi).
                 - 4. Asesmen Formatif & Lembar Kerja Murid (LKM) untuk tiap pertemuan.
-                - 5. Asesmen Sumatif (20 soal pilihan ganda HOTS dan Kunci Jawaban).
+                - 5. Asesmen Sumatif (20 soal pilihan ganda HOTS dan Kunci Jawaban sesuai dengan KKTP).
                 - 6. Referensi / Daftar Pustaka (penulisan harus sesuai dengan kaedah penulisan daftar pustaka.
                 
                 Di akhir halaman dokumen, buatlah layout tanda tangan kiri-kanan menggunakan tabel HTML transparan:
